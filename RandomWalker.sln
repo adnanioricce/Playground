@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StillTryingWalking", "StillTryingWalking\StillTryingWalking.csproj", "{1AAA0224-B8BA-4A3F-BCE2-1CAA0D968380}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomWalker", "RandomWalker\RandomWalker.csproj", "{1AAA0224-B8BA-4A3F-BCE2-1CAA0D968380}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
