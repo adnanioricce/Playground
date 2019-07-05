@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using StillTryingWalking.Extensions;
 using System.Collections.Generic;
 
 namespace StillTryingWalking
@@ -11,8 +10,11 @@ namespace StillTryingWalking
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Vector2 startPosition; 
-        List<Pixel> pixels;
+        
+        Pixel pixel;
+        //turn off the redraw of the back buffer
+        bool drawOff = true;
+        
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -20,16 +22,14 @@ namespace StillTryingWalking
             IsMouseVisible = true;
         }        
         protected override void Initialize()
-        {
-            pixels = new List<Pixel>();
-            startPosition = new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2);
+        {                        
+            pixel = new Pixel(GraphicsDevice, new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2));
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            pixels.Add(new Pixel(GraphicsDevice, startPosition ));
+            spriteBatch = new SpriteBatch(GraphicsDevice);            
             base.LoadContent();
         }
 
@@ -37,23 +37,28 @@ namespace StillTryingWalking
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            var walk = new Vector2((float)(new Random().NextDouble()), (float)(new Random().NextDouble()));
-            var nextPosition = startPosition + walk;
-            startPosition = nextPosition;
-            pixels.Add(new Pixel(GraphicsDevice,nextPosition));
+
+            pixel.Update();
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin(SpriteSortMode.Deferred);
-            foreach (Pixel pixel in pixels)
-            {
-                spriteBatch.Draw(pixel.texture, pixel.position, Color.Black);
-            }            
-            spriteBatch.End();
+            pixel.Draw(spriteBatch);
             base.Draw(gameTime);
         }
+        protected override bool BeginDraw()
+        {
+            //this question and answer saved my sanity
+            //https://stackoverflow.com/questions/4054936/manual-control-over-when-to-redraw-the-screen/4057180#4057180
+            if (drawOff) {                
+                return base.BeginDraw();
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
     }
 }
