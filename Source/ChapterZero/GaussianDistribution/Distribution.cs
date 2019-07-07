@@ -7,7 +7,8 @@ namespace GaussianDistribution
 {
     public class Distribution
     {        
-        public Bar[] Bars { get; private set; } = new Bar[20];        
+        public Bar[] Bars { get; private set; } = new Bar[20];
+        private readonly Random randomGenerator = new Random();
         public Distribution(int width,int height,GraphicsDevice graphicsDevice)
         {
             for (int i = 0; i < Bars.Length; i++)
@@ -37,9 +38,18 @@ namespace GaussianDistribution
         {
             for (int i = 0; i < Bars.Length; i++)
             {
-                Bars[i] = new Bar(40, Bars[i].Texture.Height + (int)((new Random().NextDouble() * 1.2d)), graphicsDevice);
+                Bars[i] = new Bar(40, Bars[i].Texture.Height + GetGaussianDistribution(0.0014,0.00015), graphicsDevice);
                 Console.WriteLine($"on {nameof(Update)} height:{Bars[i].Texture.Height},width:{Bars[i].Texture.Width} time:{DateTime.UtcNow}");
             }
         }       
+        private int GetGaussianDistribution(double mean,double standardDeviation)
+        {            
+            double firstSample = 1.0 - randomGenerator.NextDouble();
+            double secondSample = 1.0 - randomGenerator.NextDouble();
+            double normalStandard = Math.Sqrt(-2.0 * Math.Log(firstSample)) * Math.Sin(2.0 * Math.PI * secondSample);
+            double normal = mean + standardDeviation + normalStandard;
+            Console.WriteLine($"normal distribution value :{normal}");
+            return (int)normal;
+        }
     }
 }
