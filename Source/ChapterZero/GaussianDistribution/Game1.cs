@@ -38,8 +38,8 @@ namespace GaussianDistribution
                 Exit();
 
             // TODO: Add your update logic here
-            if(_frameCounter.Update(gameTime.GetElapsedSeconds()))
-            _distribution.Update(GraphicsDevice,gameTime);
+            if(_frameCounter.Update(gameTime.GetElapsedSeconds() * 60))
+                _distribution.Update(GraphicsDevice,gameTime);
 
             base.Update(gameTime);
         }        
@@ -47,8 +47,9 @@ namespace GaussianDistribution
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            if (_frameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds + 60))
-            {
+            Console.WriteLine($"elapsed time: {gameTime.ElapsedGameTime.TotalSeconds}");
+            if (_frameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds * 60))
+            {                
                 Console.WriteLine($"FPS:{_frameCounter.AverageFramesPerSecond}");
                 _distribution.Draw(spriteBatch);
             }

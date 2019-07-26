@@ -38,7 +38,7 @@ namespace GaussianDistribution
         {
             for (int i = 0; i < Bars.Length; i++)
             {
-                Bars[i] = new Bar(40, Bars[i].Texture.Height + GetGaussianDistribution(0.0014,0.00015), graphicsDevice);
+                Bars[i] = new Bar(40, Bars[i].Texture.Height + GetGaussianDistribution(1.0,0.1), graphicsDevice);
                 Console.WriteLine($"on {nameof(Update)} height:{Bars[i].Texture.Height},width:{Bars[i].Texture.Width} time:{DateTime.UtcNow}");
             }
         }       
