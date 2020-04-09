@@ -1,21 +1,26 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Snake;
+using System;
 
-namespace Snake
+namespace SnakeGame
 {
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;        
         private Vector2 screen;
-        private SnakeBody snake;
-        private Food food;        
+        private Snake snake;
+        private Food food;
+        private bool drawOff = true;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            IsMouseVisible = true;            
+            IsMouseVisible = true;
+            this.IsFixedTimeStep = true;
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 30d); 
         }
         
         protected override void Initialize()
@@ -31,9 +36,11 @@ namespace Snake
             TextureHelper.SetGraphicsDevice(GraphicsDevice);
             graphics.PreferredBackBufferWidth = 800;
             graphics.PreferredBackBufferHeight = 800;
+            Utils.Width = graphics.PreferredBackBufferWidth;
+            Utils.Height = graphics.PreferredBackBufferHeight;
             graphics.ApplyChanges();
             this.screen = new Vector2(graphics.PreferredBackBufferWidth/2,graphics.PreferredBackBufferHeight/2);            
-            snake = new SnakeBody(new Vector2(this.screen.X,this.screen.Y),screen,GraphicsDevice);
+            snake = new Snake(new Vector2(this.screen.X,this.screen.Y),GraphicsDevice);
             food = new Food();
         }
         
@@ -41,7 +48,7 @@ namespace Snake
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
+            HandleInput();
             snake.Update();
             food.Update(snake);
             base.Update(gameTime);
@@ -56,6 +63,36 @@ namespace Snake
             snake.Draw(spriteBatch);
             //spriteBatch.End();
             base.Draw(gameTime);
+        }
+        protected override bool BeginDraw()
+        {
+            if (drawOff)
+            {
+                return base.BeginDraw();
+            }else
+            {
+                return false;
+            }
+        }
+        private void HandleInput()
+        {
+            var input = Keyboard.GetState();
+            if (input.IsKeyDown(Keys.Left))
+            {
+                snake._direction = Keys.Left;                
+            }
+            if (input.IsKeyDown(Keys.Right))
+            {                
+                snake._direction = Keys.Right;
+            }
+            if (input.IsKeyDown(Keys.Up))
+            {                
+                snake._direction = Keys.Up;
+            }
+            if (input.IsKeyDown(Keys.Down))
+            {                
+                snake._direction = Keys.Down;
+            }            
         }
     }
 }

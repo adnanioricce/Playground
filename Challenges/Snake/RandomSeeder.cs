@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Snake
+namespace SnakeGame
 {
     public static class RandomSeeder
     {
