@@ -22,7 +22,7 @@ namespace GameOfLife
         public LifeGrid(int[,] initialState)
         {
             _grid = new Grid(initialState);
-            lastGeneration = _grid.TileCell;
+            lastGeneration = new int[_grid.ScaleX, _grid.ScaleY];
             for (int i = 0; i < _grid.Width; i++)
                 for (int j = 0; j < _grid.Height; ++j)
                     lastGeneration[i, j] = _grid.TileCell[i, j];
@@ -40,20 +40,19 @@ namespace GameOfLife
 		//Change state of grid here, leave nextGrid outside of this class
 		public void Draw(SpriteBatch spriteBatch)
 		{                                        
-                for (int x = 0; x < _grid.Width; ++x)//GetUpperBound é o tamanho do array
+            for (int x = 0; x < _grid.Width; ++x)//GetUpperBound é o tamanho do array
+            {
+                for (int y = 0; y < _grid.Height; ++y)
                 {
-                    for (int y = 0; y < _grid.Height; ++y)
+                    int textureId = _grid.TileCell[x, y];
+                    if (textureId != 0)
                     {
-                        int textureId = _grid.TileCell[x, y];
-                        if (textureId != 0)
-                        {
-                            var texturePosition = new Vector2(x * 10, y * 10) + position;
-                            spriteBatch.Draw(Game1.whiteTexture, texturePosition, null, Color.White, 0, Vector2.Zero, 1.0f, SpriteEffects.None, 0f);
-                        }
+                        var texturePosition = new Vector2(x * 16, y * 16) + position;
+                        spriteBatch.Draw(Game1.whiteTexture, texturePosition, null, Color.White, 0, Vector2.Zero, 1.0f, SpriteEffects.None, 0f);
                     }
                 }
-            
-		}
+            }            
+		}        
         public void Update(GameTime gameTime)
         {
             updateTimer += gameTime.ElapsedGameTime;
@@ -61,6 +60,11 @@ namespace GameOfLife
             { 
                 updateTimer = TimeSpan.Zero;
                 _grid.CreateNextGeneration(lastGeneration);
+                for (int i = 0; i < _grid.ScaleX; i++){
+                    for (int j = 0; j < _grid.ScaleY; j++){
+                        lastGeneration[i, j] = _grid.TileCell[i, j];
+                    }
+                }
             }
 		}
 		//TODO:Create or Add package for generic color buffer factory method

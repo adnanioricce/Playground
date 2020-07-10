@@ -18,7 +18,7 @@ namespace GameOfLife
             //TODO:Check if is valid content            
             string[] lines = File.ReadAllLines(filepath);
             string line = lines[0];
-            int[,] grid = new int[(int)MinSize.X,(int)MinSize.Y];
+            int[,] grid = new int[32,32];
             for (int i = 0; i < grid.GetUpperBound(0); i++)
             {
                 for (int j = 0; j < grid.GetUpperBound(1); j++)
