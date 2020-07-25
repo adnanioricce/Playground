@@ -1,13 +1,13 @@
 using Microsoft.Xna.Framework;
 using System;
-using System.Drawing;
+using System.Linq;
 
 namespace GameOfLife
-{    
+{
+    public delegate int[,] GenerationStep(Action<int[,]> evolutionMethod, int scaleX, int scaleY);
     public class Grid
     {
-        public readonly int ScaleX;
-        public readonly int ScaleY;
+        public readonly (int X, int Y) Scales;        
         public int[,] TileCell { get { return _tileCell;}  }
         private int[,] _tileCell;
         private int[,] _nextState;
@@ -17,8 +17,8 @@ namespace GameOfLife
         {
             Width = width;
             Height = height;
-	        ScaleX = width / 16;
-            ScaleY = height / 16; 
+            Scales.X = width / 16;
+            Scales.Y = height / 16; 
             _tileCell = new int[width, height];            
             for (int i = 0; i < width; i++)
                 for (int j = 0; j < height; j++)
@@ -30,94 +30,56 @@ namespace GameOfLife
 	    {            
             Width = initialState.GetUpperBound(0);
             Height = initialState.GetUpperBound(1);            
-            ScaleX = initialState.GetLength(0);
-            ScaleY = initialState.GetLength(1);
-            _nextState = new int[ScaleX, ScaleY];
+            Scales.X = initialState.GetLength(0);
+            Scales.Y = initialState.GetLength(1);
+            _nextState = new int[Scales.X, Scales.Y];
             _nextState.Initialize();
             _tileCell = initialState;            
             
         }
 	    //TODO:Method to swap cells
         //its better to find cells and store your positions  
-        public void CreateNextGeneration(int[,] lastState)
-        {
-            var resultGrid = new int[ScaleX, ScaleY];
-            for (int x = 0; x < ScaleX; ++x)
-                for (int y = 0; y < ScaleY; ++y){
-                    
-                    int neighbors = CountNeighboards(_tileCell, x, y, ScaleX);
-                    
-                    var cellState = _tileCell[x, y];
-                    int result = 0;
-                    //subpopulation
-                    if (cellState == 1 && neighbors <= 1)
-                        result = 0;
-                    //Alive
-                    if(cellState == 1 && (neighbors == 2 || neighbors == 3))
-                        result = 1;
-                    //overpopulation
-                    if (cellState == 1 && neighbors > 3)
-                        result = 0;
-                    //Reproduction
-                    if (cellState == 0 && neighbors == 3)
-                        result = 1;
-                    resultGrid[x, y] = result;
-                }
-            for (int i = 0; i < ScaleX; i++){
-                for (int j = 0; j < ScaleY; j++){
-                    _tileCell[i, j] = resultGrid[i, j];
-                }
-            }            
+        public void CreateNextGeneration()
+        {            
+            GenerationEvolve(EvolveCell, _tileCell,Scales).CopyGrid(_tileCell, Scales);                           
         }
-	    public void SetNextGeneration(int[,] lastGrid,int[,] nextGrid)
-	    {                        
-            for (int i = 0; i < Width; ++i)
-                for (int j = 0; j < Height; j++) 
-                {
-                    nextGrid[i, j] = lastGrid[i, j];                    
-                }
-	    }
-        private int CountNeighboards(int[,] grid,int x,int y,int _scale)
-        {                        
-            int count = 0;
-            // Check cell on the right.            
-            if (grid[ScalePosition(x + 1,false), y] == 1)
-                count++;
-
-            // Check cell on the bottomw right.
-            //if (x != Width && y != Height)            
-            if (grid[ScalePosition(x + 1,false), ScalePosition(y + 1,true)] == 1)
-                count++;
-
-            // Check cell on the bottom.            
-            if (grid[ScalePosition(x + 1,false), ScalePosition(y - 1,true)] == 1)
-                count++;
-
-            // Check cell on the bottom left.                        
-            if (grid[ScalePosition(x - 1,false), ScalePosition(y + 1,true)] == 1)
-                count++;
-
-            // Check cell on the left.            
-            if (grid[ScalePosition(x - 1,false),y] == 1)
-                count++;
-            // Check cell on the top left.            
-            if (grid[ScalePosition(x - 1,false), ScalePosition(y - 1,true)] == 1)
-                count++;
-
-            // Check cell on the top.            
-            if (grid[x, ScalePosition(y - 1,true)] == 1)
-                count++;
-            if (grid[x, ScalePosition(y + 1,true)] == 1)
-                count++;            
-            return count;            
+	    public void SetNextGeneration(int[,] lastGrid)
+	    {
+            lastGrid.CopyGrid(_tileCell, (Scales.X, Scales.Y));                  
+	    }        
+        protected int[,] GenerationEvolve(Func<int[,], (int X,int Y), (int X,int Y), int> evolveMethod, int[,] lastGeneration,(int X,int Y) scales)
+        {            
+            var resultGrid = new int[scales.X, scales.Y];            
+            for (int x = 0; x < Scales.X; ++x) { 
+                for (int y = 0; y < Scales.Y; ++y) {
+                    resultGrid[x, y] = evolveMethod(lastGeneration, (x,y), scales);                   
+                } 
+            }                    
+            return resultGrid;
         }
-        private int ScalePosition(int value,bool isYaxis)
+        protected int EvolveCell(int[,] grid,(int X,int Y) position, (int X,int Y) scales)
+        {            
+            int neighbors = grid.CountNeighboards(position, scales);
+            var cellState = grid[position.X, position.Y];
+            int result = IsCellAlive(cellState,neighbors);            
+            return result;
+        }
+        protected int IsCellAlive(int cellState,int neighbors)
         {
-            if (value < 0 && !isYaxis) return ScaleX - 1;
-            if (value < 0 && isYaxis) return ScaleY - 1;
-            if (value == ScaleX || value == ScaleY) return 0;            
-            return value;
-            //return value < 0 || value == Scale ? Math.Abs(value) % Scale : value;
+            int result = 0;            
+            //Subpopulation
+            if (cellState == 1 && neighbors <= 1)
+                result = 0;
+            //Alive
+            if (cellState == 1 && (neighbors == 2 || neighbors == 3))
+                result = 1;
+            //overpopulation
+            if (cellState == 1 && neighbors > 3)
+                result = 0;
+            //Reproduction
+            if (cellState == 0 && neighbors == 3)
+                result = 1;
+            return result;
         }
     }
 }

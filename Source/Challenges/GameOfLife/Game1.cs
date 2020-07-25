@@ -43,8 +43,8 @@ namespace GameOfLife
 
         protected override void Initialize()
         {            
-            whiteTexture = CreateWhiteTexture(totalGridSize,totalGridSize);            
-            whitePoint = CreateWhiteTexture(1,1);
+            whiteTexture = GraphicsDevice.CreateTexture(Color.White,totalGridSize,totalGridSize);            
+            whitePoint = GraphicsDevice.CreateTexture(Color.White,1,1);
             currentPattern.Initialize();
             _lifeGrid = new LifeGrid(currentPattern);            
             base.Initialize();
@@ -116,24 +116,6 @@ namespace GameOfLife
             }
             spriteBatch.End();
             base.Draw(gameTime);
-        }
-        private Texture2D CreateWhiteTexture(int width = 16,int height = 16)
-        {            
-            return CreateWhiteTexture(new Texture2D(GraphicsDevice, width, height), width, height);
-        }
-        private Texture2D CreateWhiteTexture(Texture2D _whiteTexture,int width,int height)
-        {
-            Color[] color = CreateColor(Color.White, width, height);
-            _whiteTexture.SetData(color);
-            return _whiteTexture;
-        }        
-        private Color[] CreateColor(Color color, int width, int height)
-        {
-            Color[] colors = new Color[width * height];
-            for (int i = 0; i < colors.Length; ++i)
-                colors[i] = color;
-
-            return colors;
         }        
         private Vector2 ScalePosition(Point point)
         {

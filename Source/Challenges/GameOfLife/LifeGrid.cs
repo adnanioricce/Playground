@@ -22,7 +22,7 @@ namespace GameOfLife
         public LifeGrid(int[,] initialState)
         {
             _grid = new Grid(initialState);
-            lastGeneration = new int[_grid.ScaleX, _grid.ScaleY];
+            lastGeneration = new int[_grid.Scales.X, _grid.Scales.Y];
             for (int i = 0; i < _grid.Width; i++)
                 for (int j = 0; j < _grid.Height; ++j)
                     lastGeneration[i, j] = _grid.TileCell[i, j];
@@ -59,9 +59,9 @@ namespace GameOfLife
             if (updateTimer.TotalMilliseconds > 1000f / Game1.UPS)
             { 
                 updateTimer = TimeSpan.Zero;
-                _grid.CreateNextGeneration(lastGeneration);
-                for (int i = 0; i < _grid.ScaleX; i++){
-                    for (int j = 0; j < _grid.ScaleY; j++){
+                _grid.CreateNextGeneration();
+                for (int i = 0; i < _grid.Scales.X; i++){
+                    for (int j = 0; j < _grid.Scales.Y; j++){
                         lastGeneration[i, j] = _grid.TileCell[i, j];
                     }
                 }
