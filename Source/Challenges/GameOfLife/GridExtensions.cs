@@ -11,38 +11,19 @@ namespace GameOfLife
     {
         public static int CountNeighboards(this int[,] grid,(int X,int Y) position,(int X,int Y) scale)
         {
-            var (x, y) = (position.X, position.Y);
-            var (scaleX, scaleY) = ((int)scale.X, (int)scale.Y);
+            var (x, y) = (position.X, position.Y);            
             int count = 0;
-            // Check cell on the right.            
-            if (grid[ScalePosition(x + 1, scaleX, scaleY, false), y] == 1)
-                count++;
-
-            // Check cell on the bottomw right.
-            //if (x != Width && y != Height)            
-            if (grid[ScalePosition(x + 1, scaleX, scaleY, false), ScalePosition(y + 1, scaleX, scaleY, true)] == 1)
-                count++;
-
-            // Check cell on the bottom.            
-            if (grid[ScalePosition(x + 1, scaleX, scaleY, false), ScalePosition(y - 1, scaleX, scaleY, true)] == 1)
-                count++;
-
-            // Check cell on the bottom left.                        
-            if (grid[ScalePosition(x - 1, scaleX, scaleY, false), ScalePosition(y + 1, scaleX, scaleY, true)] == 1)
-                count++;
-
-            // Check cell on the left.            
-            if (grid[ScalePosition(x - 1, scaleX, scaleY, false), y] == 1)
-                count++;
-            // Check cell on the top left.            
-            if (grid[ScalePosition(x - 1, scaleX, scaleY, false), ScalePosition(y - 1, scaleX, scaleY, true)] == 1)
-                count++;
-
-            // Check cell on the top.            
-            if (grid[x, ScalePosition(y - 1, scaleX, scaleY, true)] == 1)
-                count++;
-            if (grid[x, ScalePosition(y + 1, scaleX, scaleY, true)] == 1)
-                count++;
+            // Check borders of the cell      
+            for (int i = -1; i <= 1; ++i)
+            {                
+                for (int j = -1; j <= 1; ++j)
+                {
+                    if (i == 0 && j == 0) continue;
+                    var (xPos, yPos) = (RoundCellPosition(x + i,scale, false), RoundCellPosition(y + j, scale, true));
+                    if (grid[xPos, yPos] == 1)
+                        count++;
+                }
+            }            
             return count;
         }
         public static int[,] CreateGridCopy(this int[,] lastGrid)
@@ -68,11 +49,11 @@ namespace GameOfLife
         {
             grid[(int)Math.Abs(position.X), (int)Math.Abs(position.Y)] = delete ? 0 : 1;
         }        
-        private static int ScalePosition(int value,int scaleX,int scaleY, bool isYaxis)
+        private static int RoundCellPosition(int value,(int X,int Y) scale, bool isYaxis)
         {
-            if (value < 0 && !isYaxis) return scaleX - 1;
-            if (value < 0 && isYaxis) return scaleY - 1;
-            if (value == scaleX || value == scaleY) return 0;
+            if (value < 0 && !isYaxis) return scale.X - 1;
+            if (value < 0 && isYaxis) return scale.Y - 1;
+            if (value == scale.X || value == scale.Y) return 0;
             return value;            
         }
     }
