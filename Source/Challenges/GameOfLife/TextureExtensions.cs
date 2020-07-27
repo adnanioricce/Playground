@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GameOfLife
@@ -20,11 +21,8 @@ namespace GameOfLife
             return _whiteTexture;
         }
         public static Color[] CreateColor(Color color, int width, int height)
-        {
-            Color[] colors = new Color[width * height];
-            for (int i = 0; i < colors.Length; ++i)
-                colors[i] = color;
-            return colors;
+        {            
+            return Enumerable.Repeat(color, width * height).ToArray();
         }
     }
 }

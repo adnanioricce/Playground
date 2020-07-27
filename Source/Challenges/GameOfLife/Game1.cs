@@ -2,10 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace GameOfLife
 {
@@ -24,8 +20,7 @@ namespace GameOfLife
         private readonly (int Width, int Height) gridSize = (Width:1280,Height: 960);
         private readonly float scale = 16;
         private readonly int totalGridSize = 16;
-        private readonly int gridCenterX = 400;
-        private readonly int gridCenterY = 400;
+        private readonly (int X,int Y) centers = (X:400,Y: 400);        
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -35,9 +30,8 @@ namespace GameOfLife
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromSeconds(1.0 / FPS);            
-            gridCenterX = gridSize.Width / 2;
-            gridCenterY = gridSize.Height / 2;
+            TargetElapsedTime = TimeSpan.FromSeconds(1.0 / FPS);
+            (centers.X,centers.Y) = (gridSize.Width / 2,gridSize.Height / 2);            
             currentPattern = new int[80, 60];
         }
 
@@ -56,25 +50,21 @@ namespace GameOfLife
         }        
         protected override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Space))
             {
                 isPaused = !isPaused;
             }            
             if (isPaused) 
             {
                 var mouseState = Mouse.GetState();
-                if (mouseState.LeftButton == ButtonState.Pressed)
-                {                    
-                    var mousePosition = mouseState.Position;
-                    var roudedPositions = (X: mousePosition.X / scale, Y: mousePosition.Y / scale);
-                    currentPattern[(int)Math.Abs(roudedPositions.X), (int)Math.Abs(roudedPositions.Y)] = 1;
-                }                
-                if (mouseState.RightButton == ButtonState.Pressed)
+                var mousePosition = mouseState.Position;
+                var roundedPositions = (X: mousePosition.X / scale, Y: mousePosition.Y / scale);                
+                if (IsMouseClicked(mouseState))
                 {
-                    var mousePosition = mouseState.Position;
-                    var roudedPositions = (X: mousePosition.X / scale, Y: mousePosition.Y / scale);
-                    currentPattern[(int)Math.Abs(roudedPositions.X), (int)Math.Abs(roudedPositions.Y)] = 0;
-                }
+                    var erase = mouseState.RightButton == ButtonState.Pressed;
+                    currentPattern.SetCell(roundedPositions, erase);                    
+                }                
                 return;
             }
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -87,42 +77,15 @@ namespace GameOfLife
         protected override void Draw(GameTime gameTime)
         {            
             GraphicsDevice.Clear(Color.Black);
-            spriteBatch.Begin();            
-            for (float x = -gridSize.Width; x < gridSize.Width; ++x)
-            {
-                Rectangle rectangle = new Rectangle((int)(gridCenterX + x * totalGridSize), 0, 1, gridSize.Height);
-                spriteBatch.Draw(whitePoint, rectangle, Color.White);
-            }
-            for (float y = -gridSize.Height; y < gridSize.Height; ++y)
-            {
-                Rectangle rectangle = new Rectangle(0, (int)(gridCenterY + y * totalGridSize), gridSize.Width, 1);
-                spriteBatch.Draw(whitePoint, rectangle, Color.White);
-            }
-            for (int x = 0; x < currentPattern.GetUpperBound(0); ++x)//GetUpperBound é o tamanho do array
-            {
-                for (int y = 0; y < currentPattern.GetUpperBound(1); ++y)
-                {
-                    int textureId = currentPattern[x, y];
-                    if (textureId != 0)
-                    {
-                        var texturePosition = new Vector2(x * 16, y * 16);
-                        spriteBatch.Draw(Game1.whiteTexture, texturePosition, null, Color.White, 0, Vector2.Zero, 1.0f, SpriteEffects.None, 0f);
-                    }
-                }
-            }            
-            if(!isPaused)
-            {
-                _lifeGrid.Draw(spriteBatch);
-            }
+            spriteBatch.Begin();
+            spriteBatch.DrawGridLines(gridSize, centers, totalGridSize, whitePoint);            
+            _lifeGrid.Draw(spriteBatch);            
             spriteBatch.End();
             base.Draw(gameTime);
-        }        
-        private Vector2 ScalePosition(Point point)
+        }                
+        private bool IsMouseClicked(MouseState mouseState)
         {
-            var position = new Vector2();
-            position.X = scale * point.X;
-            position.Y = scale * point.Y;
-            return position;
+            return mouseState.RightButton != ButtonState.Released || mouseState.LeftButton != ButtonState.Released;
         }
     }
 }

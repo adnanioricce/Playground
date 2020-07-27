@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,6 +64,10 @@ namespace GameOfLife
                 }
             }            
         }
+        public static void SetCell(this int[,] grid,(float X,float Y) position,bool delete)
+        {
+            grid[(int)Math.Abs(position.X), (int)Math.Abs(position.Y)] = delete ? 0 : 1;
+        }        
         private static int ScalePosition(int value,int scaleX,int scaleY, bool isYaxis)
         {
             if (value < 0 && !isYaxis) return scaleX - 1;

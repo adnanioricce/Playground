@@ -3,8 +3,7 @@ using System;
 using System.Linq;
 
 namespace GameOfLife
-{
-    public delegate int[,] GenerationStep(Action<int[,]> evolutionMethod, int scaleX, int scaleY);
+{    
     public class Grid
     {
         public readonly (int X, int Y) Scales;        
@@ -15,10 +14,8 @@ namespace GameOfLife
         public int Height { get; }        
         public Grid(int width,int height)
         {
-            Width = width;
-            Height = height;
-            Scales.X = width / 16;
-            Scales.Y = height / 16; 
+            (Width, Height) = (width, height);
+            (Scales.X, Scales.Y) = (width / 16, height / 16);            
             _tileCell = new int[width, height];            
             for (int i = 0; i < width; i++)
                 for (int j = 0; j < height; j++)
@@ -28,10 +25,8 @@ namespace GameOfLife
         }
 	    public Grid(int[,] initialState)
 	    {            
-            Width = initialState.GetUpperBound(0);
-            Height = initialState.GetUpperBound(1);            
-            Scales.X = initialState.GetLength(0);
-            Scales.Y = initialState.GetLength(1);
+            (Width,Height) = (initialState.GetUpperBound(0),initialState.GetUpperBound(1));             
+            (Scales.X,Scales.Y) = (initialState.GetLength(0),initialState.GetLength(1));             
             _nextState = new int[Scales.X, Scales.Y];
             _nextState.Initialize();
             _tileCell = initialState;            

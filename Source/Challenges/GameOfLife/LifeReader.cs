@@ -19,13 +19,7 @@ namespace GameOfLife
             string[] lines = File.ReadAllLines(filepath);
             string line = lines[0];
             int[,] grid = new int[32,32];
-            for (int i = 0; i < grid.GetUpperBound(0); i++)
-            {
-                for (int j = 0; j < grid.GetUpperBound(1); j++)
-                {
-                    grid[i, j] = 0;
-                }
-            }
+            grid.Initialize();            
             for (int i = 0; i < lines.Length; ++i)
             {                
                 for (int j = 0; j < line.Length; ++j)
