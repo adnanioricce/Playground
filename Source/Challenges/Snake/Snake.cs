@@ -24,8 +24,7 @@ namespace SnakeGame
         }
 
         public void AddBody(Vector2 position)
-        {
-            //snakePositions.Enqueue(position);
+        {            
             if (body.Count >= 1)
             {
                 body.Add(new SnakeBody(body[body.Count - 1].LastPosition, _direction));
@@ -52,12 +51,7 @@ namespace SnakeGame
                         body[i].LastPosition = new Vector2(_position.X, _position.Y - (30 * i));
                     }
                 }
-            }
-            //if (_body is null) {
-            //    _body = new SnakeBody(position, _direction);
-            //    return;
-            //}
-            //_body.AddBody(position, _direction,_body.Index);
+            }           
         }
 
         public void Update()
