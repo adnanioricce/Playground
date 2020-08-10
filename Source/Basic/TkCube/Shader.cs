@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using OpenTK.Graphics.OpenGL4;
@@ -8,6 +9,7 @@ namespace TkCube
     {
         private int _handle;
         private bool _disposedValue = false;
+        private readonly List<VertexAttribute> _attributes = new List<VertexAttribute>();
         public Shader(string vertexPath, string fragmentPath)
         {
             string VertexShaderSource, FragmentShaderSource;
@@ -72,10 +74,10 @@ namespace TkCube
         public void Use()
         {
             GL.UseProgram(_handle);
-        }
+        }        
         public int GetAttribPointer(string variableName)
         {
             return GL.GetAttribLocation(_handle, variableName);
-        }
+        }        
     }
 }
