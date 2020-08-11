@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 namespace TkCube
 {
@@ -78,6 +79,14 @@ namespace TkCube
         public int GetAttribPointer(string variableName)
         {
             return GL.GetAttribLocation(_handle, variableName);
-        }        
+        }
+        public int GetUniformLocation(string variableName)
+        {
+            return GL.GetUniformLocation(_handle, variableName);
+        }
+        public void SetUniform(string variableName, int value)
+        {
+            GL.Uniform1(GetUniformLocation(variableName), value);
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace TkCube
         protected readonly int _bufferDataTypeSize = 0;
         protected readonly List<VertexAttribute> _vertexAttributes = new List<VertexAttribute>();
         public virtual int Id { get; protected set; }
-        public virtual int VerticesCount { get; protected set; }                        
+        public virtual int VerticesCount { get; protected set; }        
         protected VertexBuffer(int vertexBufferId, int bufferDataTypeSize,int verticesCount) : this(vertexBufferId, bufferDataTypeSize)
         {
             VerticesCount = verticesCount;
@@ -45,7 +45,7 @@ namespace TkCube
         }                    
         public void LoadData(float[,] vertices)
         {
-            var bufferDataTypeSize = System.Runtime.InteropServices.Marshal.SizeOf(vertices[0, 0]);
+            var bufferDataTypeSize = Marshal.SizeOf(vertices[0, 0]);
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.Id);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * bufferDataTypeSize, vertices, BufferUsageHint.StaticDraw);            
         }
