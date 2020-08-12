@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TkCube
 {
@@ -13,7 +14,12 @@ namespace TkCube
         public static void DrawCube(int vertexArrayId,int verticesCount)
         {
             GL.BindVertexArray(vertexArrayId);
-            GL.DrawArrays(PrimitiveType.Quads, 0, verticesCount);
+            GL.DrawElements(PrimitiveType.Triangles, 12,DrawElementsType.UnsignedInt, 0);
+            var error = GL.GetError();
+            if (error != ErrorCode.NoError)
+            {
+                Console.WriteLine(string.Format("Error on {0} trying to draw elements. Error Code:{1}", nameof(DrawCube), error));
+            }
         }
     }
 }

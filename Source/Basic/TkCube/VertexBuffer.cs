@@ -9,8 +9,7 @@ namespace TkCube
 {
     public class VertexBuffer : IDisposable
     {
-        protected readonly int _bufferDataTypeSize = 0;
-        protected readonly List<VertexAttribute> _vertexAttributes = new List<VertexAttribute>();
+        protected readonly int _bufferDataTypeSize = 0;        
         public virtual int Id { get; protected set; }
         public virtual int VerticesCount { get; protected set; }        
         protected VertexBuffer(int vertexBufferId, int bufferDataTypeSize,int verticesCount) : this(vertexBufferId, bufferDataTypeSize)
@@ -34,11 +33,7 @@ namespace TkCube
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * bufferDataTypeSize, vertices, BufferUsageHint.StreamDraw);
             return new VertexBuffer(bufferId, bufferDataTypeSize, vertices.Length);
-        }                
-        public void AddVertexAttributes(params VertexAttribute[] vertexAttributes)
-        {            
-            _vertexAttributes.AddRange(vertexAttributes);            
-        }        
+        }                        
         public void Bind()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.Id);

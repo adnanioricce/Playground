@@ -43,6 +43,7 @@ namespace TkCube
             GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
             GL.TexImage2D(target, 0, pixelInternalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, pixels.ToArray());
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             return new Texture(textureId, image.Width, image.Height,pixels.ToArray());
         }
         public void Bind(int slot = 0)
@@ -51,8 +52,8 @@ namespace TkCube
             GL.BindTexture(TextureTarget.Texture2D, this.Id);            
         }
         public void UnBind()
-        {
-            //TODO:
+        {            
+            //TODO:Add error handling
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
