@@ -19,7 +19,7 @@ namespace TkCube
             _offset = offset;
             _normalize = normalize;
         }        
-        public void Set(Shader shader)
+        public void Set(ShaderProgram shader)
         {
             var index = shader.GetAttribPointer(_name);
             GL.VertexAttribPointer(index, _size, _type, _normalize, _stride, _offset);

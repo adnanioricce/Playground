@@ -13,8 +13,7 @@ namespace TkCube
             IndicesCount = indicesCount;
         }
         public static ElementBuffer CreateElementBuffer(uint[] indices)
-        {
-            //TODO:check for invalid input
+        {            
             var indiceDataTypeSize = Marshal.SizeOf(indices[0]);
             var elementBufferId = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferId);

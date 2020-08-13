@@ -8,8 +8,8 @@ namespace TkCube
     {
         static void Main(string[] args)
         {
-            using var game = new GameWindow(800,600,"TkCube");
-            var shader = new Shader("Shaders/vertex.shader", "Shaders/fragment.shader");                           
+            using var game = new GameWindow(800,600,"TkCube");            
+            var shaderProgram = ShaderProgram.CreateShaderProgram("Shaders/vertex.shader", "Shaders/fragment.shader");            
             var vertices = GetCubeData();
             var attributes = new[]{
                     new VertexAttribute("aPosition", 3, VertexAttribPointerType.Float, Vertex.Size, 0),
@@ -20,8 +20,8 @@ namespace TkCube
             {
                 0, 1, 3,   
                 1, 2, 3
-            };
-            var vertexArray = VertexArray.CreateVertexArray(vertices, shader, DrawFunctions.DrawCube,ElementBuffer.CreateElementBuffer(indices), "Assets/Textures/wall.jpg",attributes );
+            };            
+            var vertexArray = VertexArray.CreateVertexArray(vertices, shaderProgram, ElementBuffer.CreateElementBuffer(indices), "Assets/Textures/wall.jpg",attributes );
             game.AddVertexArrays(vertexArray);
             game.Run(60.0);
         }

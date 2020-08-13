@@ -10,8 +10,7 @@ namespace TkCube
 {
     public class GameWindow : OpenTK.GameWindow
     {
-        //Tem alguma maneira de definir uma lista de "comandos" que eu quero executar todo frame?
-        private readonly List<VertexBuffer> _vertexes = new List<VertexBuffer>();
+        //Tem alguma maneira de definir uma lista de "comandos" que eu quero executar todo frame?        
         private readonly List<VertexArray> _vertexArrays = new List<VertexArray>();
         public GameWindow(int width,int height,string title) : base(width,height,GraphicsMode.Default,title)
         {                                    
@@ -19,8 +18,7 @@ namespace TkCube
         public void AddVertexArrays(params VertexArray[] vertexArrays)
         {
             _vertexArrays.AddRange(vertexArrays);            
-        }        
-        //TODO:Change float[,] to Vector3[]                       
+        }                
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             var state = Keyboard.GetState();
@@ -38,7 +36,7 @@ namespace TkCube
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);            
-            _vertexArrays.ForEach(vao => vao.Draw());
+            _vertexArrays.ForEach(vao => vao.Draw(DrawFunctions.DrawCube));
             GL.BindVertexArray(0);
             Context.SwapBuffers();
             base.OnRenderFrame(e);

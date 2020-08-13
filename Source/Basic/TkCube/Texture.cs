@@ -21,30 +21,28 @@ namespace TkCube
             Height = height;
             Data = data;
         }
-        public static Texture LoadTexture(string textureFilepath,TextureTarget target = TextureTarget.Texture2D, PixelInternalFormat pixelInternalFormat = PixelInternalFormat.Rgba, PixelFormat pixelFormat = PixelFormat.Rgba,PixelType pixelType = PixelType.Byte)
-        {            
-            
+        public static Texture LoadTexture(string textureFilepath)
+        {                        
             var image = Image.Load<Rgba32>(textureFilepath);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
-            var pixels = new List<byte>();
-            for (int i = 0; i < image.Width; ++i){
-                for (int j = 0; j < image.Height; ++j){
-                    //pixels.Add(new Color4(image[i, j].R, image[i, j].G, image[i, j].B, image[i, j].A));                    
-                    pixels.Add(image[i, j].R);
-                    pixels.Add(image[i, j].G);
-                    pixels.Add(image[i, j].B);
-                    pixels.Add(image[i, j].A);
-                }
-            }
+            var pixels = image.GetPixelsBytesFromImage();
+            return LoadTexture(pixels, (image.Width, image.Height));            
+        }
+        public static Texture LoadTexture(string textureFilepath, TextureTarget target, PixelInternalFormat pixelInternalFormat, PixelFormat pixelFormat, PixelType pixelType)
+        {
+            var image = Image.Load<Rgba32>(textureFilepath);
+            return LoadTexture(image.GetPixelsBytesFromImage(), (image.Width, image.Height), target, pixelInternalFormat, pixelFormat, pixelType);
+        }
+        public static Texture LoadTexture(byte[] pixels,(int Width,int Height) textureSize , TextureTarget target = TextureTarget.Texture2D, PixelInternalFormat pixelInternalFormat = PixelInternalFormat.Rgba, PixelFormat pixelFormat = PixelFormat.Rgba, PixelType pixelType = PixelType.Byte)
+        {
             var textureId = GL.GenTexture();
             GL.BindTexture(target, textureId);
             GL.TexParameter(target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
             GL.TexParameter(target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
             GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexImage2D(target, 0, pixelInternalFormat, image.Width, image.Height, 0, pixelFormat, pixelType, pixels.ToArray());
+            GL.TexImage2D(target, 0, pixelInternalFormat, textureSize.Width, textureSize.Height, 0, pixelFormat, pixelType, pixels);
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-            return new Texture(textureId, image.Width, image.Height,pixels.ToArray());
+            return new Texture(textureId, textureSize.Width, textureSize.Height, pixels);
         }
         public void Bind(int slot = 0)
         {
