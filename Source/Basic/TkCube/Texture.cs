@@ -46,8 +46,10 @@ namespace TkCube
         }
         public void Bind(int slot = 0)
         {
-            GL.ActiveTexture(TextureUnit.Texture0 + slot);
-            GL.BindTexture(TextureTarget.Texture2D, this.Id);            
+            var unit = TextureUnit.Texture0 + slot;
+            GL.ActiveTexture(unit);
+            GL.BindTexture(TextureTarget.Texture2D, this.Id);
+            Logger.Log(nameof(Texture), nameof(Bind));
         }
         public void UnBind()
         {            

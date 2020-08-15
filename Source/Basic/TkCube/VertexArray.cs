@@ -6,42 +6,81 @@ namespace TkCube
 {
     public class VertexArray : IDisposable
     {
+        protected readonly List<Texture> _textures = new List<Texture>();
         public virtual int Id { get; protected set; }
         public virtual VertexBuffer VertexBuffer { get; protected set; }
         public virtual ShaderProgram Shader { get; protected set; }
-        public virtual Texture Texture { get; protected set; }
+        public virtual List<Texture> Textures { get { return _textures; } }
         public virtual ElementBuffer ElementBuffer { get; protected set; }        
-        private readonly List<VertexAttribute> _vertexAttributes = new List<VertexAttribute>();
+        private readonly List<VertexAttribute> _vertexAttributes = new List<VertexAttribute>();        
+        protected VertexArray(int vertexArrayId, VertexBuffer vertexBuffer)
+        {
+            Id = vertexArrayId;
+            VertexBuffer = vertexBuffer;
+        }
         protected VertexArray(int vertexArrayId, VertexBuffer vertexBuffer, ShaderProgram shader, Texture texture,ElementBuffer elementBuffer, params VertexAttribute[] vertexAttributes)
         {
             Id = vertexArrayId;
             VertexBuffer = vertexBuffer;
             Shader = shader;
-            Texture = texture;
-            ElementBuffer = elementBuffer;            
-            _vertexAttributes.AddRange(vertexAttributes);            
+            Textures.Add(texture);
+            ElementBuffer = elementBuffer;
+            _vertexAttributes.AddRange(vertexAttributes);
         }
-        public static VertexArray CreateVertexArray(Vertex[] vertices, ShaderProgram shader, ElementBuffer elementBuffer, string textureFilepath, params VertexAttribute[] vertexAttributes)
+        public static VertexArray CreateVertexArray(Vertex[] vertices)
         {
             var vertexArrayId = GL.GenVertexArray();
             GL.BindVertexArray(vertexArrayId);
             var vertexBuffer = VertexBuffer.CreateVertexObject(vertices);
-            var texture = Texture.LoadTexture(textureFilepath);
-            var vertexArray = new VertexArray(vertexArrayId, vertexBuffer, shader, texture, elementBuffer, vertexAttributes);
+            return new VertexArray(vertexArrayId, vertexBuffer);
+        }
+        public static VertexArray CreateVertexArray(Vertex[] vertices, ShaderProgram shader, ElementBuffer elementBuffer, string textureFilepath, params VertexAttribute[] vertexAttributes)
+        {
+            var vertexArrayId = GL.GenVertexArray();
+            GL.BindVertexArray(vertexArrayId);            
+            var vertexBuffer = VertexBuffer.CreateVertexObject(vertices);            
+            var texture = Texture.LoadTexture(textureFilepath);            
+            var vertexArray = new VertexArray(vertexArrayId, vertexBuffer, shader, texture, elementBuffer, vertexAttributes);            
             vertexArray.SetVertexAttributes();
             return vertexArray;
+        }        
+        public void AddVertexAttributes(params VertexAttribute[] attributes)
+        {
+            _vertexAttributes.AddRange(attributes);
+        }                
+        public void SetShaderProgram(ShaderProgram shader)
+        {
+            Shader = shader;
+        }        
+        public void SetElementBuffer(ElementBuffer elementBuffer)
+        {
+            ElementBuffer = elementBuffer;
         }
         public void SetVertexAttributes()
         {
             _vertexAttributes.ForEach(attribute => attribute.Set(this.Shader));
-        }        
+        }
+        public void SetProjection(Camera camera)
+        {
+            //this.Shader.SetMatrix4("model", camera.Model);
+            this.Shader.SetMatrix4("view", camera.View);
+            this.Shader.SetMatrix4("projection", camera.Projection);
+        }
+        public void AddTextures(params Texture[] textures)
+        {
+            _textures.AddRange(textures);
+        }
         public void Draw(DrawFunction drawFunction)
-        {            
-            this.Shader.Use();
-            this.Texture.Bind();
+        {
+            _textures[0].Bind(0);
+            _textures[1].Bind(1);
+            //this.Shader.Use();
+            
+            
             this.ElementBuffer.Bind();
-            drawFunction(this.Id, this.VertexBuffer.VerticesCount);
-            //this._drawFunction(this.Id,this.VertexBuffer.VerticesCount);
+            drawFunction(this, this.VertexBuffer.VerticesCount);
+            _textures[0].UnBind();
+            _textures[1].UnBind();
         }
         
         public void Dispose()

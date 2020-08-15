@@ -13,10 +13,8 @@ namespace TkCube
         {            
             image.Mutate(x => x.Flip(FlipMode.Vertical));
             var pixels = new List<byte>();
-            for (int i = 0; i < image.Width; ++i)
-            {
-                for (int j = 0; j < image.Height; ++j)
-                {                    
+            for (int i = 0; i < image.Width; ++i){
+                for (int j = 0; j < image.Height; ++j){                    
                     pixels.Add(image[i, j].R);
                     pixels.Add(image[i, j].G);
                     pixels.Add(image[i, j].B);

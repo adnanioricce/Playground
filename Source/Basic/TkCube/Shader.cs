@@ -22,6 +22,7 @@ namespace TkCube
             var shaderSourceCode = LoadShaderCode(shaderFilepath);
             GL.ShaderSource(shaderId, shaderSourceCode);
             GL.CompileShader(shaderId);
+            Logger.Log(nameof(Shader), nameof(CreateShader));
             LogShaderInfo(shaderId);
             return new Shader(shaderId, type);
         }
@@ -50,6 +51,7 @@ namespace TkCube
             {
                 GL.DeleteShader(this.Id);                
                 _disposed = true;
+                Logger.Log(nameof(Shader), nameof(Dispose));
             }
         }
         public void Dispose()

@@ -11,6 +11,7 @@ namespace TkCube
         private int _handle;
         private bool _disposedValue = false;
         public int Id { get { return _handle; } }
+        protected readonly List<Texture> _textures = new List<Texture>();
         protected ShaderProgram()
         {
             _handle = GL.CreateProgram();
@@ -54,10 +55,14 @@ namespace TkCube
         {
             return GL.GetUniformLocation(_handle, variableName);
         }
-        public void SetUniform(string variableName, int value)
+        public void SetInt(string variableName, int value)
         {
             GL.Uniform1(GetUniformLocation(variableName), value);
         }
+        public void SetMatrix4(string variableName, Matrix4 value)
+        {
+            GL.UniformMatrix4(GetUniformLocation(variableName), false,ref value);
+        }        
         public void AddShader(string shaderFilepath,ShaderType type)
         {
             using var shader = Shader.CreateShader(shaderFilepath, type);            
@@ -81,25 +86,9 @@ namespace TkCube
             {                
                 GL.DetachShader(programId, shaderIds[i]);
                 var infoLog = GL.GetShaderInfoLog(shaderIds[i]);
+                var programInfoLog = GL.GetProgramInfoLog(programId);
             }            
             return new ShaderProgram(programId);
-        }
-        public static string LoadShaderCode(string filepath)
-        {
-            using (var reader = new StreamReader(filepath, Encoding.UTF8))
-            {
-                return reader.ReadToEnd();
-            }
-        }
-        public static void Log(int shaderId)
-        {
-            var infoLog = GL.GetShaderInfoLog(shaderId);
-            if (infoLog != String.Empty)
-            {
-                Console.WriteLine(infoLog);
-                return;
-            }
-            Console.WriteLine("No error detected on shader {0}", shaderId);
-        }
+        }               
     }
 }
