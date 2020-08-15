@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
@@ -12,12 +13,16 @@ namespace TkCube
         private bool _disposedValue = false;
         public int Id { get { return _handle; } }
         protected readonly List<Texture> _textures = new List<Texture>();
+        private readonly List<(int,TextureUnit)> _textureSlots = new List<(int, TextureUnit)>();
+        public List<Texture> Textures { get { return _textures; } }
         protected ShaderProgram()
         {
-            _handle = GL.CreateProgram();
+            _textureSlots.AddRange(_textures.Select(texture => (texture.Id, TextureUnit.Texture0 + _textures.IndexOf(texture))));
+            _handle = GL.CreateProgram();            
         }
         public ShaderProgram(int handle)
         {
+            _textureSlots.AddRange(_textures.Select(texture => (texture.Id, TextureUnit.Texture0 + _textures.IndexOf(texture))));
             _handle = handle;
         }                
         ~ShaderProgram()
@@ -47,6 +52,14 @@ namespace TkCube
         {
             GL.UseProgram(_handle);
         }        
+        public void BindTextures()
+        {
+            _textures.ForEach(texture => texture.Bind(_textures.IndexOf(texture)));
+        }
+        public void UnbindTexture()
+        {
+            _textures.ForEach(texture => texture.UnBind());
+        }
         public int GetAttribPointer(string variableName)
         {
             return GL.GetAttribLocation(_handle, variableName);
@@ -55,19 +68,22 @@ namespace TkCube
         {
             return GL.GetUniformLocation(_handle, variableName);
         }
+
+        public int GetUniform(string variableName)
+        {
+            GL.GetUniform(this.Id, GetUniformLocation(variableName), out int result);
+            return result;
+        }
+
         public void SetInt(string variableName, int value)
         {
-            GL.Uniform1(GetUniformLocation(variableName), value);
+            var location = GetUniformLocation(variableName);
+            GL.Uniform1(location, value);
         }
         public void SetMatrix4(string variableName, Matrix4 value)
         {
             GL.UniformMatrix4(GetUniformLocation(variableName), false,ref value);
-        }        
-        public void AddShader(string shaderFilepath,ShaderType type)
-        {
-            using var shader = Shader.CreateShader(shaderFilepath, type);            
-            GL.AttachShader(_handle, shader.Id);
-        }
+        }                              
         public static ShaderProgram CreateShaderProgram(string vertexShaderPath,string fragmentShaderPath)
         {
             using var vertexShader = Shader.CreateShader(vertexShaderPath, ShaderType.VertexShader);            
@@ -87,6 +103,8 @@ namespace TkCube
                 GL.DetachShader(programId, shaderIds[i]);
                 var infoLog = GL.GetShaderInfoLog(shaderIds[i]);
                 var programInfoLog = GL.GetProgramInfoLog(programId);
+                Logger.Log(nameof(ShaderProgram), nameof(CreateShaderProgram), string.Format("Shader Info Log: {0}", infoLog));
+                Logger.Log(nameof(ShaderProgram), nameof(CreateShaderProgram), string.Format("Program Info Log: {0}", programInfoLog));
             }            
             return new ShaderProgram(programId);
         }               

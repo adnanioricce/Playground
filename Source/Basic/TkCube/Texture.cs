@@ -1,10 +1,7 @@
-﻿using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 using System;
-using System.Collections.Generic;
 
 namespace TkCube
 {
@@ -38,8 +35,8 @@ namespace TkCube
             GL.BindTexture(target, textureId);
             GL.TexParameter(target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
             GL.TexParameter(target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
-            GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
             GL.TexImage2D(target, 0, pixelInternalFormat, textureSize.Width, textureSize.Height, 0, pixelFormat, pixelType, pixels);
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             return new Texture(textureId, textureSize.Width, textureSize.Height, pixels);
@@ -54,12 +51,12 @@ namespace TkCube
         public void UnBind()
         {            
             //TODO:Add error handling
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);            
         }
 
         public void Dispose()
         {
-            GL.DeleteTexture(this.Id);
+            GL.DeleteTexture(this.Id);            
         }
     }
 }

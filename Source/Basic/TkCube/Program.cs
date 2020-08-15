@@ -11,8 +11,7 @@ namespace TkCube
             using var game = new GameWindow(800,600,"TkCube");
             var vertices = GetCubeData();
             var vertexArray = VertexArray.CreateVertexArray(vertices);
-            var shaderProgram = ShaderProgram.CreateShaderProgram("Shaders/vertex.shader", "Shaders/fragment.shader");            
-            
+            var shaderProgram = ShaderProgram.CreateShaderProgram("Shaders/vertex.shader", "Shaders/fragment.shader");                        
             var attributes = new[]{
                     new VertexAttribute("aPosition", 3, VertexAttribPointerType.Float, Vertex.Size, 0),
                     new VertexAttribute("vColor", 4, VertexAttribPointerType.Float, Vertex.Size, 3 * sizeof(float)),
@@ -23,18 +22,20 @@ namespace TkCube
                 0, 1, 3,   
                 1, 2, 3
             };
-            
+            var elementBuffer = ElementBuffer.CreateElementBuffer(indices);
             var containerTexture = Texture.LoadTexture("./Assets/Textures/container.jpg");
-            var niceFaceTexture = Texture.LoadTexture("./Assets/Textures/awesomeface.png");              
+            var niceFaceTexture = Texture.LoadTexture("./Assets/Textures/awesomeface.png");
+            shaderProgram.Use();
+            shaderProgram.SetInt("texture1", 0);
+            shaderProgram.SetInt("texture2", 1);
+            var camera = Camera.CreateCamera(game.Width, game.Height);
+            shaderProgram.Textures.AddRange(new Texture[] { containerTexture, niceFaceTexture });
+            vertexArray.ElementBuffer = elementBuffer;
+            vertexArray.Shader = shaderProgram;                             
+            vertexArray.Camera = camera;
             vertexArray.AddVertexAttributes(attributes);
-            vertexArray.AddTextures(containerTexture, niceFaceTexture);
-            vertexArray.SetElementBuffer(ElementBuffer.CreateElementBuffer(indices));
-            vertexArray.SetShaderProgram(shaderProgram);
-            vertexArray.Shader.Use();
-            vertexArray.Shader.SetInt("texture0", 0);
-            vertexArray.Shader.SetInt("texture1", 1);
             vertexArray.SetVertexAttributes();
-            game.AddVertexArrays(vertexArray);
+            game.AddVertexArrays(vertexArray);            
             game.Run(60.0);
         }
         public static Vector3[] CubePositions()
@@ -57,55 +58,58 @@ namespace TkCube
         {
             return new Vertex[]
             {
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.White,new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.White,new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.White,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.White,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.White,new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.White,new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
 
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.White,new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.White,new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.White,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.White,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.White,new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.White, new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
 
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.White, new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.White, new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
 
-                 new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
-                 new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.White, new Vector2(1.0f, 1.0f)),
-                 new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f)),
-                 new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f)),
-                 new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.White, new Vector2(0.0f, 0.0f)),
-                 new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
 
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.White, new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.White, new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
 
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.White, new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.White, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.White, new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.White, new Vector2(0.0f, 1.0f))
+                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f))
+            };                          
+        }
+        static Vertex[] GetSimpleRectangleData()
+        {
+            return new Vertex[]
+            {
+                new Vertex(new Vector3(0.5f,  0.5f, 0.0f),Color4.Lime,new Vector2(1.0f,1.0f)),
+                new Vertex(new Vector3(0.5f, -0.5f, 0.0f),Color4.Magenta,new Vector2(1.0f,0.0f)),
+                new Vertex(new Vector3(-0.5f, -0.5f, 0.0f),Color4.NavajoWhite,new Vector2(0.0f,0.0f)),
+                new Vertex(new Vector3(-0.5f,  0.5f, 0.0f ),Color4.Moccasin, new Vector2(0.0f,1.0f))
             };
-            //return new Vertex[]
-            //{
-            //    new Vertex(new Vector3(0.5f,  0.5f, 0.0f),Color4.Lime,new Vector2(1.0f,1.0f)),
-            //    new Vertex(new Vector3(0.5f, -0.5f, 0.0f),Color4.Magenta,new Vector2(1.0f,0.0f)),
-            //    new Vertex(new Vector3(-0.5f, -0.5f, 0.0f),Color4.NavajoWhite,new Vector2(0.0f,0.0f)),
-            //    new Vertex(new Vector3(-0.5f,  0.5f, 0.0f ),Color4.Moccasin, new Vector2(0.0f,1.0f))               
-            //};                
         }
     }
 }

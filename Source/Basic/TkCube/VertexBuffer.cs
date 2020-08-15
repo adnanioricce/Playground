@@ -30,10 +30,9 @@ namespace TkCube
         {
             var bufferId = GL.GenBuffer();
             var bufferDataTypeSize = Marshal.SizeOf(vertices[0]);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, bufferId);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * bufferDataTypeSize, vertices, BufferUsageHint.StreamDraw);
+            BufferHelper.LoadBufferData(bufferId, vertices, hintUsage: BufferUsageHint.StreamDraw);            
             return new VertexBuffer(bufferId, bufferDataTypeSize, vertices.Length);
-        }                        
+        }
         public void Bind()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.Id);
@@ -42,7 +41,7 @@ namespace TkCube
         {
             var bufferDataTypeSize = Marshal.SizeOf(vertices[0, 0]);
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.Id);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * bufferDataTypeSize, vertices, BufferUsageHint.StaticDraw);            
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * bufferDataTypeSize, vertices, BufferUsageHint.StaticDraw);
         }
 
         public void Dispose()

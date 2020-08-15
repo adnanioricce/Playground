@@ -1,7 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TkCube
 {
@@ -16,6 +14,15 @@ namespace TkCube
             var error = GL.GetError();
             while(error != ErrorCode.NoError) {
                 Console.WriteLine("error on {0} class on method {1}, error code:{2}", className, method, error);
+                error = GL.GetError();
+            }
+        }
+        public static void Log(string className,string method,string message)
+        {
+            var error = GL.GetError();
+            while (error != ErrorCode.NoError)
+            {
+                Console.WriteLine("error on {0} class on method {1}, error code:{2} \n {3}", className, method, error,message);
                 error = GL.GetError();
             }
         }

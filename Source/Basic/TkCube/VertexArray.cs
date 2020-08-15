@@ -6,12 +6,13 @@ namespace TkCube
 {
     public class VertexArray : IDisposable
     {
-        protected readonly List<Texture> _textures = new List<Texture>();
+        protected readonly List<Texture> _textures = new List<Texture>();        
         public virtual int Id { get; protected set; }
-        public virtual VertexBuffer VertexBuffer { get; protected set; }
-        public virtual ShaderProgram Shader { get; protected set; }
+        public virtual VertexBuffer VertexBuffer { get; set; }
+        public virtual ShaderProgram Shader { get; set; }
         public virtual List<Texture> Textures { get { return _textures; } }
-        public virtual ElementBuffer ElementBuffer { get; protected set; }        
+        public virtual ElementBuffer ElementBuffer { get; set; }
+        public Camera Camera { get; set; }
         private readonly List<VertexAttribute> _vertexAttributes = new List<VertexAttribute>();        
         protected VertexArray(int vertexArrayId, VertexBuffer vertexBuffer)
         {
@@ -34,6 +35,21 @@ namespace TkCube
             var vertexBuffer = VertexBuffer.CreateVertexObject(vertices);
             return new VertexArray(vertexArrayId, vertexBuffer);
         }
+
+        public void UnBind()
+        {
+            GL.BindVertexArray(0);
+        }
+
+        public static VertexArray CreateVertexArray(VertexBuffer vertexBuffer,ShaderProgram shader,ElementBuffer elementBuffer)
+        {
+            var vertexArrayId = GL.GenVertexArray();
+            GL.BindVertexArray(vertexArrayId);
+            var vertexArray = new VertexArray(vertexArrayId, vertexBuffer);
+            vertexArray.Shader = shader;
+            vertexArray.ElementBuffer = elementBuffer;            
+            return vertexArray;
+        }
         public static VertexArray CreateVertexArray(Vertex[] vertices, ShaderProgram shader, ElementBuffer elementBuffer, string textureFilepath, params VertexAttribute[] vertexAttributes)
         {
             var vertexArrayId = GL.GenVertexArray();
@@ -47,15 +63,7 @@ namespace TkCube
         public void AddVertexAttributes(params VertexAttribute[] attributes)
         {
             _vertexAttributes.AddRange(attributes);
-        }                
-        public void SetShaderProgram(ShaderProgram shader)
-        {
-            Shader = shader;
-        }        
-        public void SetElementBuffer(ElementBuffer elementBuffer)
-        {
-            ElementBuffer = elementBuffer;
-        }
+        }                        
         public void SetVertexAttributes()
         {
             _vertexAttributes.ForEach(attribute => attribute.Set(this.Shader));
@@ -72,15 +80,10 @@ namespace TkCube
         }
         public void Draw(DrawFunction drawFunction)
         {
-            _textures[0].Bind(0);
-            _textures[1].Bind(1);
-            //this.Shader.Use();
-            
-            
-            this.ElementBuffer.Bind();
+            //this.Shader.BindTextures();
+            //this.ElementBuffer.Bind();
             drawFunction(this, this.VertexBuffer.VerticesCount);
-            _textures[0].UnBind();
-            _textures[1].UnBind();
+            //this.Shader.UnbindTexture();
         }
         
         public void Dispose()

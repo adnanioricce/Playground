@@ -11,7 +11,7 @@ namespace TkCube
     {
         public static byte[] GetPixelsBytesFromImage(this Image<Rgba32> image)
         {            
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            image.Mutate(x => x.Flip(FlipMode.Horizontal));
             var pixels = new List<byte>();
             for (int i = 0; i < image.Width; ++i){
                 for (int j = 0; j < image.Height; ++j){                    
