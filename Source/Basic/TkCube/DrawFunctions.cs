@@ -18,14 +18,14 @@ namespace TkCube
             vertexArray.Shader.BindTextures();
             GL.BindVertexArray(vertexArray.Id);
             vertexArray.ElementBuffer.Bind();
-            vertexArray.SetProjection(vertexArray.Camera);                        
+            vertexArray.Shader.SetProjection(Ioc.Camera);                        
             for (int i = 0; i < CubePositions.Length; i++)
             {
                 //var model = GameWindow.Camera.Model * Matrix4.CreateTranslation(CubePositions[i]);
                 float angle = 20.0f * i;
-                var model = vertexArray.Camera.Model * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(angle));                
+                var model = Ioc.Camera.Model * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(angle));                
                 model = model * Matrix4.CreateScale(new Vector3(0.5f,0.5f,0.5f)) * Matrix4.CreateTranslation(CubePositions[i]);
-                vertexArray.Shader.SetMatrix4("model", model);
+                vertexArray.Shader.SetMatrix4(nameof(Ioc.Camera.Model).ToLower(), model);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, verticesCount);
             }
             vertexArray.ElementBuffer.UnBind();

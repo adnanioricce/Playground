@@ -83,7 +83,13 @@ namespace TkCube
         public void SetMatrix4(string variableName, Matrix4 value)
         {
             GL.UniformMatrix4(GetUniformLocation(variableName), false,ref value);
-        }                              
+        }
+        public void SetProjection(Camera camera)
+        {            
+            this.SetMatrix4(nameof(camera.Model).ToLower(), camera.Model);
+            this.SetMatrix4(nameof(camera.View).ToLower(), camera.View);
+            this.SetMatrix4(nameof(camera.Projection).ToLower(), camera.Projection);
+        }
         public static ShaderProgram CreateShaderProgram(string vertexShaderPath,string fragmentShaderPath)
         {
             using var vertexShader = Shader.CreateShader(vertexShaderPath, ShaderType.VertexShader);            
@@ -98,7 +104,7 @@ namespace TkCube
                 GL.AttachShader(programId, shaderIds[i]);                
             }
             GL.LinkProgram(programId);
-            for (int i = 0; i < shaderIds.Length; i++)
+            for (int i = 0; i < shaderIds.Length; ++i)
             {                
                 GL.DetachShader(programId, shaderIds[i]);
                 var infoLog = GL.GetShaderInfoLog(shaderIds[i]);

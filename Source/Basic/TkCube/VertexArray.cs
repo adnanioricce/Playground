@@ -68,12 +68,7 @@ namespace TkCube
         {
             _vertexAttributes.ForEach(attribute => attribute.Set(this.Shader));
         }
-        public void SetProjection(Camera camera)
-        {
-            //this.Shader.SetMatrix4("model", camera.Model);
-            this.Shader.SetMatrix4("view", camera.View);
-            this.Shader.SetMatrix4("projection", camera.Projection);
-        }
+        
         public void AddTextures(params Texture[] textures)
         {
             _textures.AddRange(textures);

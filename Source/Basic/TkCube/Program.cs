@@ -8,7 +8,9 @@ namespace TkCube
     {
         static void Main(string[] args)
         {
-            using var game = new GameWindow(800,600,"TkCube");
+            Ioc.ScreenSize = (1280, 720);
+            Ioc.Camera = Camera.CreateCamera(Ioc.ScreenSize.Width, Ioc.ScreenSize.Height);
+            using var game = new GameWindow(Ioc.ScreenSize.Width,Ioc.ScreenSize.Height,"TkCube");
             var vertices = GetCubeData();
             var vertexArray = VertexArray.CreateVertexArray(vertices);
             var shaderProgram = ShaderProgram.CreateShaderProgram("Shaders/vertex.shader", "Shaders/fragment.shader");                        
