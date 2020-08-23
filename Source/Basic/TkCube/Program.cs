@@ -12,13 +12,9 @@ namespace TkCube
             Ioc.Camera = Camera.CreateCamera(Ioc.ScreenSize.Width, Ioc.ScreenSize.Height);
             using var game = new GameWindow(Ioc.ScreenSize.Width,Ioc.ScreenSize.Height,"TkCube");
             var vertices = GetCubeData();
-            var vertexArray = VertexArray.CreateVertexArray(vertices);
-            var shaderProgram = ShaderProgram.CreateShaderProgram("Shaders/vertex.shader", "Shaders/fragment.shader");                        
-            var attributes = new[]{
-                    new VertexAttribute("aPosition", 3, VertexAttribPointerType.Float, Vertex.Size, 0),
-                    new VertexAttribute("vColor", 4, VertexAttribPointerType.Float, Vertex.Size, 3 * sizeof(float)),
-                    new VertexAttribute("aTexCoord", 2, VertexAttribPointerType.Float, Vertex.Size, 7 * sizeof(float))                    
-            };
+            var vertexArray = VertexArray.CreateVertexArray(vertices);            
+            var shaderProgram = ShaderProgram.CreateShaderProgram("Shaders/vertex.shader", "Shaders/fragment.shader");
+            var attributes = GetAttributes();
             var indices = new uint[]
             {
                 0, 1, 3,   
@@ -30,15 +26,22 @@ namespace TkCube
             shaderProgram.Use();
             shaderProgram.SetInt("texture1", 0);
             shaderProgram.SetInt("texture2", 1);
-            var camera = Camera.CreateCamera(game.Width, game.Height);
+            shaderProgram.SetVertexAttributes(attributes);
             shaderProgram.Textures.AddRange(new Texture[] { containerTexture, niceFaceTexture });
             vertexArray.ElementBuffer = elementBuffer;
             vertexArray.Shader = shaderProgram;                             
-            vertexArray.Camera = camera;
-            vertexArray.AddVertexAttributes(attributes);
-            vertexArray.SetVertexAttributes();
+            vertexArray.Camera = Camera.CreateCamera(game.Width, game.Height);            
             game.AddVertexArrays(vertexArray);            
             game.Run(60.0);
+        }
+        public static VertexAttribute[] GetAttributes()
+        {
+            return new VertexAttribute[] 
+            {
+                new VertexAttribute("aPosition", 3, VertexAttribPointerType.Float, Vertex.Size, 0),
+                new VertexAttribute("vColor", 4, VertexAttribPointerType.Float, Vertex.Size, 3 * sizeof(float)),
+                new VertexAttribute("aTexCoord", 2, VertexAttribPointerType.Float, Vertex.Size, 7 * sizeof(float))
+            };
         }
         public static Vector3[] CubePositions()
         {

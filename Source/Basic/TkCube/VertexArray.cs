@@ -56,18 +56,9 @@ namespace TkCube
             GL.BindVertexArray(vertexArrayId);            
             var vertexBuffer = VertexBuffer.CreateVertexObject(vertices);            
             var texture = Texture.LoadTexture(textureFilepath);            
-            var vertexArray = new VertexArray(vertexArrayId, vertexBuffer, shader, texture, elementBuffer, vertexAttributes);            
-            vertexArray.SetVertexAttributes();
+            var vertexArray = new VertexArray(vertexArrayId, vertexBuffer, shader, texture, elementBuffer, vertexAttributes);                        
             return vertexArray;
-        }        
-        public void AddVertexAttributes(params VertexAttribute[] attributes)
-        {
-            _vertexAttributes.AddRange(attributes);
-        }                        
-        public void SetVertexAttributes()
-        {
-            _vertexAttributes.ForEach(attribute => attribute.Set(this.Shader));
-        }
+        }                
         
         public void AddTextures(params Texture[] textures)
         {

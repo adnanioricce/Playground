@@ -90,6 +90,13 @@ namespace TkCube
             this.SetMatrix4(nameof(camera.View).ToLower(), camera.View);
             this.SetMatrix4(nameof(camera.Projection).ToLower(), camera.Projection);
         }
+        public void SetVertexAttributes(params VertexAttribute[] attributes)
+        {
+            foreach(var attribute in attributes)
+            {
+                attribute.Set(this);
+            }
+        }
         public static ShaderProgram CreateShaderProgram(string vertexShaderPath,string fragmentShaderPath)
         {
             using var vertexShader = Shader.CreateShader(vertexShaderPath, ShaderType.VertexShader);            

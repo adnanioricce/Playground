@@ -3,6 +3,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace TkCube
@@ -11,10 +12,11 @@ namespace TkCube
     {
         public static byte[] GetPixelsBytesFromImage(this Image<Rgba32> image)
         {            
-            image.Mutate(x => x.Flip(FlipMode.Horizontal));
-            var pixels = new List<byte>();
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            var pixels = new List<byte>();           
             for (int i = 0; i < image.Width; ++i){
-                for (int j = 0; j < image.Height; ++j){                    
+                for (int j = 0; j < image.Height; ++j)
+                {
                     pixels.Add(image[i, j].R);
                     pixels.Add(image[i, j].G);
                     pixels.Add(image[i, j].B);

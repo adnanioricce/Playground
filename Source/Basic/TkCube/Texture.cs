@@ -29,11 +29,12 @@ namespace TkCube
             var image = Image.Load<Rgba32>(textureFilepath);
             return LoadTexture(image.GetPixelsBytesFromImage(), (image.Width, image.Height), target, pixelInternalFormat, pixelFormat, pixelType);
         }
-        public static Texture LoadTexture(byte[] pixels,(int Width,int Height) textureSize , TextureTarget target = TextureTarget.Texture2D, PixelInternalFormat pixelInternalFormat = PixelInternalFormat.Rgba, PixelFormat pixelFormat = PixelFormat.Rgba, PixelType pixelType = PixelType.Byte)
+        public static Texture LoadTexture(byte[] pixels,(int Width,int Height) textureSize , TextureTarget target = TextureTarget.Texture2D, PixelInternalFormat pixelInternalFormat = PixelInternalFormat.Rgba, PixelFormat pixelFormat = PixelFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
         {
             var textureId = GL.GenTexture();
             GL.BindTexture(target, textureId);
-            GL.TexParameter(target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor,new float[] { 1.0f, 1.0f, 0.0f, 1.0f });
+            GL.TexParameter(target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
             GL.TexParameter(target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
             GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
