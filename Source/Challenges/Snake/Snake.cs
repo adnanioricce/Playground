@@ -7,6 +7,7 @@ using System.Diagnostics;
 
 namespace SnakeGame
 {
+    public delegate Vector2 SnakeGrow(Vector2 nextPosition,int index);
     public class Snake
     {
         public Vector2 _position;
@@ -24,7 +25,9 @@ namespace SnakeGame
         }
 
         public void AddBody(Vector2 position)
-        {            
+        {
+            SnakeGrow snakeGrow;
+            //snakePositions.Enqueue(position);
             if (body.Count >= 1)
             {
                 body.Add(new SnakeBody(body[body.Count - 1].LastPosition, _direction));
@@ -34,24 +37,9 @@ namespace SnakeGame
                 body.Add(new SnakeBody(position, _direction));
                 for (int i = 0; i < body.Count; i++)
                 {
-                    if (_direction == Keys.Left)
-                    {
-                        body[i].LastPosition = new Vector2(_position.X - (30 * i), _position.Y);
-                    }
-                    if (_direction == Keys.Right)
-                    {
-                        body[i].LastPosition = new Vector2(_position.X - (30 * i), _position.Y);
-                    }
-                    if (_direction == Keys.Up)
-                    {
-                        body[i].LastPosition = new Vector2(_position.X, _position.Y - (30 * i));
-                    }
-                    if (_direction == Keys.Down)
-                    {
-                        body[i].LastPosition = new Vector2(_position.X, _position.Y - (30 * i));
-                    }
+                    snakeGrow = (IsHorizontalMove(_direction) ? (SnakeGrow)MoveSnakeX : (SnakeGrow)MoveSnakeY);                    
                 }
-            }           
+            }            
         }
 
         public void Update()
@@ -138,7 +126,17 @@ namespace SnakeGame
             texture.SetData(colors);
             return texture;
         }
-        
-
+        private Vector2 MoveSnakeY(Vector2 nextPosition,int index)
+        {
+            return new Vector2(_position.X, _position.Y - (30 * index));
+        }       
+        private Vector2 MoveSnakeX(Vector2 nextPosition,int index)
+        {
+            return new Vector2(_position.X - (30 * index),_position.Y);
+        }       
+        private bool IsHorizontalMove(Keys key)
+        {
+            return Keys.Right == key || Keys.Left == key;
+        }
     }
 }
