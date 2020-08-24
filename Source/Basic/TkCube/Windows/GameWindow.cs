@@ -30,8 +30,7 @@ namespace TkCube
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.DebugOutput);
-            GL.DebugMessageCallback(Logger.MessageCallBack, (IntPtr)0);
-            
+            GL.DebugMessageCallback(Logger.MessageCallBack, (IntPtr)0);            
             base.OnLoad(e);
         }
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -53,10 +52,10 @@ namespace TkCube
             }
             _velocity += 0.1;
             _time += e.Time * _velocity;
-            _vertexArrays.ForEach(vertexArray =>
-            {
-                Ioc.Camera.Model = Matrix4.CreateRotationY(-(float)MathHelper.DegreesToRadians(_time)) * Matrix4.CreateRotationX(-(float)MathHelper.DegreesToRadians(_time));
-            });
+            //_vertexArrays.ForEach(vertexArray =>
+            //{
+                //Ioc.Camera.Model = Matrix4.CreateRotationY(-(float)MathHelper.DegreesToRadians(_time)) * Matrix4.CreateRotationX(-(float)MathHelper.DegreesToRadians(_time));
+            //});
             Ioc.Camera.Update(state, (float)e.Time);
             var mouseState = Mouse.GetState();
             if (_firstMove)
@@ -67,9 +66,7 @@ namespace TkCube
             }
             else
             {
-                Ioc.Camera.Rotate(mouseState, 1f);
-                //Ioc.Camera.LastPosition = new Vector2(mouseState.X, mouseState.Y);
-                //Ioc.Camera.Rotate(mouseState, (float)1f);
+                Ioc.Camera.Rotate(mouseState, 1f);                
             }
             base.OnUpdateFrame(e);
         }
@@ -80,7 +77,8 @@ namespace TkCube
             Logger.Log(this.GetType().Name, nameof(OnRenderFrame));
             _vertexArrays.ForEach(vao =>
             {
-                vao.Draw(DrawFunctions.DrawCube);
+                DrawFunctions.DrawCubeWithLightning(vao, vao.VertexBuffer.VerticesCount);
+                //DrawFunctions.DrawCube(vao, vao.VertexBuffer.VerticesCount);                
             });
             Context.SwapBuffers();
             base.OnRenderFrame(e);

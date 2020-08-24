@@ -3,7 +3,10 @@ using OpenTK.Graphics;
 
 namespace TkCube
 {
-    public struct Vertex
+    /// <summary>
+    /// Vertex struct with position, color and texture coordinates. has Size of 36 bytes
+    /// </summary>
+    public struct ColoredTexturedVertex
     {
         public const int Size = (3 + 4 + 2) * 4;
         public const int PositionStride = 3 * sizeof(float);
@@ -12,11 +15,11 @@ namespace TkCube
         public Vector3 Position;
         public Color4 Color;
         public Vector2 TextureCoordinate;
-        public Vertex(Vector3 position, Color4 color, Vector2 textureCoordinate)
+        public ColoredTexturedVertex(Vector3 position, Color4 color, Vector2 textureCoordinate)
         {
             Position = position;
             Color = color;
             TextureCoordinate = textureCoordinate;            
-        }
-    }
+        }        
+    }    
 }

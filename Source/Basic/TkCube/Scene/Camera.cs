@@ -13,6 +13,8 @@ namespace TkCube
         private float _sensivity = 0.01f;
         private float _fov = MathHelper.PiOver2;
         //private Matrix4 _view = Matrix4.Identity;
+        //TODO:Move LightPosition to another class, this don't makes sense here
+        public Vector3 LightPosition { get; set; }
         public float AspectRatio { get; set; }
         public float Yaw { 
             get { return MathHelper.RadiansToDegrees(_yaw); } 

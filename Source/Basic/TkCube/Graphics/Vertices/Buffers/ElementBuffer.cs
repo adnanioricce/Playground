@@ -15,7 +15,7 @@ namespace TkCube
         public static ElementBuffer CreateElementBuffer(uint[] indices)
         {                        
             var elementBufferId = GL.GenBuffer();            
-            BufferHelper.LoadBufferData(elementBufferId, indices);
+            BufferHelper.LoadBufferData(elementBufferId, indices, BufferTarget.ElementArrayBuffer);
             return new ElementBuffer(elementBufferId, indices.Length);
         }
         public void Bind()

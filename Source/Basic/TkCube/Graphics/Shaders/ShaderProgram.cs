@@ -54,7 +54,7 @@ namespace TkCube
         }        
         public void BindTextures()
         {
-            _textures.ForEach(texture => texture.Bind(_textures.IndexOf(texture)));
+            _textures?.ForEach(texture => texture.Bind(_textures.IndexOf(texture)));
         }
         public void UnbindTexture()
         {
@@ -83,6 +83,10 @@ namespace TkCube
         public void SetMatrix4(string variableName, Matrix4 value)
         {
             GL.UniformMatrix4(GetUniformLocation(variableName), false,ref value);
+        }
+        public void SetVector3(string variableName, Vector3 value)
+        {
+            GL.Uniform3(GetUniformLocation(variableName),value);
         }
         public void SetProjection(Camera camera)
         {            

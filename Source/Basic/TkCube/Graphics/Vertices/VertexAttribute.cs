@@ -10,6 +10,7 @@ namespace TkCube
         private readonly int _stride;
         private readonly int _offset;
         private readonly bool _normalize;
+        public string Name { get { return _name; } }
         public VertexAttribute(string name,int size, VertexAttribPointerType type,int stride,int offset,bool normalize = false)
         {
             _name = name;

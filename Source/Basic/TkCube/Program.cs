@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System.Linq;
+using TkCube.Graphics.Vertices;
 
 namespace TkCube
 {
@@ -11,13 +13,18 @@ namespace TkCube
             Ioc.ScreenSize = (1280, 720);
             Ioc.Camera = Camera.CreateCamera(Ioc.ScreenSize.Width, Ioc.ScreenSize.Height);
             using var game = new GameWindow(Ioc.ScreenSize.Width,Ioc.ScreenSize.Height,"TkCube");
+            DrawCubeWithLightning(game);
+            game.Run(60.0);
+        }
+        public static void DrawMultipleCubesWithTextures(GameWindow game)
+        {
             var vertices = GetCubeData();
-            var vertexArray = VertexArray.CreateVertexArray(vertices);            
-            var shaderProgram = ShaderProgram.CreateShaderProgram("Shaders/vertex.shader", "Shaders/fragment.shader");
+            var vertexArray = VertexArray.CreateVertexArray(vertices);
+            var shaderProgram = ShaderProgram.CreateShaderProgram("./Assets/Shaders/vertex.shader", "./Assets/Shaders/lightingFragment.shader");
             var attributes = GetAttributes();
             var indices = new uint[]
             {
-                0, 1, 3,   
+                0, 1, 3,
                 1, 2, 3
             };
             var elementBuffer = ElementBuffer.CreateElementBuffer(indices);
@@ -26,21 +33,51 @@ namespace TkCube
             shaderProgram.Use();
             shaderProgram.SetInt("texture1", 0);
             shaderProgram.SetInt("texture2", 1);
+            
             shaderProgram.SetVertexAttributes(attributes);
             shaderProgram.Textures.AddRange(new Texture[] { containerTexture, niceFaceTexture });
             vertexArray.ElementBuffer = elementBuffer;
-            vertexArray.Shader = shaderProgram;                             
-            vertexArray.Camera = Camera.CreateCamera(game.Width, game.Height);            
+            vertexArray.Shader.Add(shaderProgram);
+            vertexArray.Camera = Camera.CreateCamera(game.Width, game.Height);
             game.AddVertexArrays(vertexArray);            
-            game.Run(60.0);
         }
+        public static void DrawCubeWithLightning(GameWindow game)
+        {
+            var vertices = GetCubeData().Select(v => new Vertex(v))
+                                        .ToArray();
+            VertexBuffer vbo = VertexBuffer.CreateVertexObject(vertices);
+            ShaderProgram lightningShader = ShaderProgram.CreateShaderProgram("Assets/Shaders/lampVertex.shader", "Assets/Shaders/lightningFragment.shader");
+            ShaderProgram lampShader = ShaderProgram.CreateShaderProgram("Assets/Shaders/lampVertex.shader", "Assets/Shaders/basicFrag.shader");
+            VertexArray vaoModel = VertexArray.CreateVertexArray();
+            vaoModel.Bind();
+            vbo.Bind();
+            lightningShader.SetVertexAttributes(GetLightedAttributes());            
+            vaoModel.Camera = Ioc.Camera;
+            vaoModel.Shader.AddRange(new[] { lightningShader });
+            vaoModel.VertexBuffer = vbo;
+            Ioc.Camera.LightPosition = new Vector3(1.2f, 1.0f, 2.0f);
+            game.AddVertexArrays(vaoModel);            
+            var lamp = Lamp.CreateLamp();
+            lamp.Shader = lampShader;            
+            lamp.Bind();
+            vbo.Bind();
+            lampShader.SetVertexAttributes(GetLightedAttributes());
+            vaoModel.Lamp = lamp;
+        }
+        public static VertexAttribute[] GetLightedAttributes()
+        {
+            return new VertexAttribute[]
+            {
+                new VertexAttribute("aPosition", 3, VertexAttribPointerType.Float, Vertex.Size,0)                
+            };
+        }        
         public static VertexAttribute[] GetAttributes()
         {
             return new VertexAttribute[] 
             {
-                new VertexAttribute("aPosition", 3, VertexAttribPointerType.Float, Vertex.Size, 0),
-                new VertexAttribute("vColor", 4, VertexAttribPointerType.Float, Vertex.Size, 3 * sizeof(float)),
-                new VertexAttribute("aTexCoord", 2, VertexAttribPointerType.Float, Vertex.Size, 7 * sizeof(float))
+                new VertexAttribute("aPosition", 3, VertexAttribPointerType.Float, ColoredTexturedVertex.Size, 0),
+                new VertexAttribute("vColor", 4, VertexAttribPointerType.Float, ColoredTexturedVertex.Size, 3 * sizeof(float)),
+                new VertexAttribute("aTexCoord", 2, VertexAttribPointerType.Float, ColoredTexturedVertex.Size, 7 * sizeof(float))
             };
         }
         public static Vector3[] CubePositions()
@@ -59,61 +96,61 @@ namespace TkCube
                 new Vector3(-1.3f,1.0f,-1.5f),
             };
         }
-        static Vertex[] GetCubeData()
+        static ColoredTexturedVertex[] GetCubeData()
         {
-            return new Vertex[]
+            return new ColoredTexturedVertex[]
             {
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
 
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent,new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent,new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
 
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
 
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
 
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
 
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f))
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(1.0f, 1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(1.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f,  0.5f),Color4.Transparent, new Vector2(0.0f, 0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f, -0.5f),Color4.Transparent, new Vector2(0.0f, 1.0f))
             };                          
         }
-        static Vertex[] GetSimpleRectangleData()
+        static ColoredTexturedVertex[] GetSimpleRectangleData()
         {
-            return new Vertex[]
+            return new ColoredTexturedVertex[]
             {
-                new Vertex(new Vector3(0.5f,  0.5f, 0.0f),Color4.Lime,new Vector2(1.0f,1.0f)),
-                new Vertex(new Vector3(0.5f, -0.5f, 0.0f),Color4.Magenta,new Vector2(1.0f,0.0f)),
-                new Vertex(new Vector3(-0.5f, -0.5f, 0.0f),Color4.NavajoWhite,new Vector2(0.0f,0.0f)),
-                new Vertex(new Vector3(-0.5f,  0.5f, 0.0f ),Color4.Moccasin, new Vector2(0.0f,1.0f))
+                new ColoredTexturedVertex(new Vector3(0.5f,  0.5f, 0.0f),Color4.Lime,new Vector2(1.0f,1.0f)),
+                new ColoredTexturedVertex(new Vector3(0.5f, -0.5f, 0.0f),Color4.Magenta,new Vector2(1.0f,0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f, -0.5f, 0.0f),Color4.NavajoWhite,new Vector2(0.0f,0.0f)),
+                new ColoredTexturedVertex(new Vector3(-0.5f,  0.5f, 0.0f ),Color4.Moccasin, new Vector2(0.0f,1.0f))
             };
         }
     }
