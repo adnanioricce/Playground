@@ -5,6 +5,10 @@ namespace PerlinNoise
     //TODO:Add a perlin noise implementation
     public class PerlinNoise
     {
+        public static float Lerp(float a0,float a1,float w)
+        {
+            return (1.0f - w) * a0 + w * a1;
+        }        
         public static float[][] GeneratePerlinNoise(float[][] baseNoise,int octaveCount)
         {
             int width = baseNoise.Length;

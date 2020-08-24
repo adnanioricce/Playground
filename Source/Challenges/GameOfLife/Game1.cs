@@ -2,46 +2,45 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Diagnostics;
-using System.IO;
 
 namespace GameOfLife
 {
     //!Try to put all rendering code here, and all computation on "Library" project
     public class Game1 : Game
     {
-        public const int UPS = 20;
-        public const int FPS = 60;
-        int counter = 1;
-        int patternCount = 0;
-        int limit = 50;
-        float countDuration = 2f; 
-        float currentTime = 0f;
+        public const int UPS = 30;
+        public const int FPS = 60;        
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;        
 	    LifeGrid _lifeGrid;
-        private string[] patterns;
-        private static int[,] currentPattern;
-
+        private int[,] currentPattern;
+        private bool isPaused = true;
         public static Texture2D whiteTexture;
+        public static Texture2D whitePoint;
+        private readonly (int Width, int Height) gridSize = (Width:1280,Height: 960);
+        private readonly float scale = 16;
+        private readonly int totalGridSize = 16;
+        private readonly (int X,int Y) centers = (X:400,Y: 400);        
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = gridSize.Width;
+            graphics.PreferredBackBufferHeight = gridSize.Height;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             IsFixedTimeStep = true;
             TargetElapsedTime = TimeSpan.FromSeconds(1.0 / FPS);
+            (centers.X,centers.Y) = (gridSize.Width / 2,gridSize.Height / 2);            
+            currentPattern = new int[80, 60];
         }
 
         protected override void Initialize()
-        {                       
-            Console.WriteLine(Directory.GetCurrentDirectory()); 
-            currentPattern = LifeReader.GetGridFromPlaintextFile("./Patterns/somePatternThatIDontKnowTheName.txt");
-            whiteTexture = CreateWhiteTexture(new Texture2D(GraphicsDevice, 4, 4));
-	        _lifeGrid = new LifeGrid(currentPattern);            
+        {            
+            whiteTexture = GraphicsDevice.CreateTexture(Color.White,totalGridSize,totalGridSize);            
+            whitePoint = GraphicsDevice.CreateTexture(Color.White,1,1);
+            currentPattern.Initialize();
+            _lifeGrid = new LifeGrid(currentPattern);            
             base.Initialize();
         }
 
@@ -51,34 +50,42 @@ namespace GameOfLife
         }        
         protected override void Update(GameTime gameTime)
         {
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Space))
+            {
+                isPaused = !isPaused;
+            }            
+            if (isPaused) 
+            {
+                var mouseState = Mouse.GetState();
+                var mousePosition = mouseState.Position;
+                var roundedPositions = (X: mousePosition.X / scale, Y: mousePosition.Y / scale);                
+                if (IsMouseClicked(mouseState))
+                {
+                    var erase = mouseState.RightButton == ButtonState.Pressed;
+                    currentPattern.SetCell(roundedPositions, erase);                    
+                }                
+                return;
+            }
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();            
+                Exit();
+            
             _lifeGrid.Update(gameTime);
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
-        {
+        {            
             GraphicsDevice.Clear(Color.Black);
             spriteBatch.Begin();
-            _lifeGrid.Draw(spriteBatch);
+            spriteBatch.DrawGridLines(gridSize, centers, totalGridSize, whitePoint);            
+            _lifeGrid.Draw(spriteBatch);            
             spriteBatch.End();
             base.Draw(gameTime);
-        }
-
-        private Texture2D CreateWhiteTexture(Texture2D _whiteTexture)
+        }                
+        private bool IsMouseClicked(MouseState mouseState)
         {
-            Color[] color = CreateColor(Color.White, 4, 4);
-            _whiteTexture.SetData(color);
-            return _whiteTexture;
+            return mouseState.RightButton != ButtonState.Released || mouseState.LeftButton != ButtonState.Released;
         }
-        private Color[] CreateColor(Color color, int width, int height)
-        {
-            Color[] colors = new Color[width * height];
-            for (int i = 0; i < colors.Length; ++i)
-                colors[i] = color;
-
-            return colors;
-        }        
     }
 }

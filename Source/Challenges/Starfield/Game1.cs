@@ -35,8 +35,8 @@ namespace Starfield
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             basicEffect = new BasicEffect(GraphicsDevice);
-            camTarget = new Vector3(50f, 100f, 10f);
-            camPosition = new Vector3(50f, 100f, -100f);
+            camTarget = new Vector3(0f, 40f, 10f);
+            camPosition = new Vector3(0f, 40f, -100f);
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45f),GraphicsDevice.DisplayMode.AspectRatio,1f, 1000f);
             viewMatrix = Matrix.CreateLookAt(camPosition, camTarget,new Vector3(0f, 1f, 0f));
             worldMatrix = Matrix.CreateWorld(camPosition, new Vector3(0,0,-1),Vector3.Up);
