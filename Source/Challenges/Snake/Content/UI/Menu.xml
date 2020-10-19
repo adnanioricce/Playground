@@ -1,0 +1,12 @@
+﻿<Project>
+  <Panel>    
+    <TextButton Text="Start" 
+                PaddingLeft="8" 
+                PaddingRight="8" 
+                PaddingTop="8" 
+                PaddingBottom="8"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Id="_startButton"/>    
+  </Panel>
+</Project>

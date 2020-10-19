@@ -14,37 +14,33 @@ namespace SnakeGame
         public Vector2 _bodyPosition;
         public Texture2D _texture;                        
         public Keys _direction;
-        private bool isOverlaped = false;
-        private readonly Queue<Vector2> snakePositions = new Queue<Vector2>();
+        private bool isOverlaped = false;                
         private readonly List<SnakeBody> body = new List<SnakeBody>();
+        public bool IsDead;
         public Snake(Vector2 position,GraphicsDevice graphics)
         {
             _position = position;
             _bodyPosition = _position;
-            _texture = CreateSnakeTexture(graphics);                        
+            _texture = CreateSnakeTexture(graphics);
+            IsDead = false;
         }
 
         public void AddBody(Vector2 position)
-        {
-            SnakeGrow snakeGrow;
-            //snakePositions.Enqueue(position);
+        {            
+            //I am not counting the initial value(that's the head of the snake), so I need this conditional, to pass the first body count
             if (body.Count >= 1)
             {
-                body.Add(new SnakeBody(body[body.Count - 1].LastPosition, _direction));
+                body.Add(new SnakeBody(body[body.Count - 1].LastPosition, _direction));                
             }
             else
             {
-                body.Add(new SnakeBody(position, _direction));
-                for (int i = 0; i < body.Count; i++)
-                {
-                    snakeGrow = (IsHorizontalMove(_direction) ? (SnakeGrow)MoveSnakeX : (SnakeGrow)MoveSnakeY);                    
-                }
+                body.Add(new SnakeBody(position, _direction));                                
             }            
         }
 
         public void Update()
         {            
-            Debug.WriteLine($"Key:{_direction.ToString()},position = x:{_position.X},Y:{_position.Y},Texture = Width:{_texture.Width},Height:{_texture.Height},data is null:{_texture is null}");            
+            Debug.WriteLine($"Key:{_direction},position = x:{_position.X},Y:{_position.Y},Texture = Width:{_texture.Width},Height:{_texture.Height},data is null:{_texture is null}");            
             if (body.Count > 0)
             {
                 if (Vector2.Distance(_position,_bodyPosition) > 5f)
@@ -75,7 +71,8 @@ namespace SnakeGame
             {
                 _position.Y = Utils.Height;
             }
-            Move(_direction);                       
+            UpdateDirection();
+            Move(_direction);
             
         }
         public void Draw(SpriteBatch spriteBatch)
@@ -86,8 +83,7 @@ namespace SnakeGame
 
                 spriteBatch.Draw(_texture, _position, Color.White);
                 for (int i = 0; i < body.Count; ++i)
-                {
-                    //var position = snakePositions.Dequeue();
+                {                    
                     spriteBatch.Draw(_texture, body[i].CurrentPosition, Color.White);
                 }
                 spriteBatch.End();
@@ -95,6 +91,26 @@ namespace SnakeGame
             else
             {
                 Debug.WriteLine("Game over");
+            }
+        }
+        private void UpdateDirection()
+        {
+            var input = Keyboard.GetState();
+            if (input.IsKeyDown(Keys.Left))
+            {
+                this._direction = Keys.Left;
+            }
+            if (input.IsKeyDown(Keys.Right))
+            {
+                this._direction = Keys.Right;
+            }
+            if (input.IsKeyDown(Keys.Up))
+            {
+                this._direction = Keys.Up;
+            }
+            if (input.IsKeyDown(Keys.Down))
+            {
+                this._direction = Keys.Down;
             }
         }
         private void Move(Keys direction)
@@ -137,6 +153,6 @@ namespace SnakeGame
         private bool IsHorizontalMove(Keys key)
         {
             return Keys.Right == key || Keys.Left == key;
-        }
+        }        
     }
 }
